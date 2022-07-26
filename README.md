@@ -1,7 +1,7 @@
 # tfrecord-creation-example
 
 
-Create a single record:
+# Create a single record
 
 ```python
 
@@ -40,7 +40,7 @@ train_writer.close()
 
 ```
 
-Read it back:
+# Read a single record
 
 ```python
 import tensorflow as tf
@@ -137,4 +137,37 @@ features {
   }
 }
 
+```
+
+# Read multiple records and decode
+
+```python
+import tensorflow as tf
+import os
+import cv2
+import matplotlib.pyplot as plt
+
+TF_RECORD_PATH="./train.tfrecord"
+
+
+for example in tf.compat.v1.python_io.tf_record_iterator(TF_RECORD_PATH):
+
+    val = tf.train.Example.FromString(example)
+
+    bbx_h = val.features.feature["train/facebbx_h"].int64_list.value[0]
+    bbx_w = val.features.feature["train/facebbx_w"].int64_list.value[0]
+
+    bbx_tl_x = val.features.feature["train/facebbx_x"].int64_list.value[0]
+    bbx_tl_y = val.features.feature["train/facebbx_y"].int64_list.value[0]
+
+    bbx_br_x = bbx_tl_x + bbx_w
+    bbx_br_y = bbx_tl_y + bbx_h
+
+    img_path = val.features.feature["train/image_frame_name"].bytes_list.value[0].decode()
+
+    img_height = val.features.feature["train/image_frame_height"].int64_list.value[0]
+    img_width = val.features.feature["train/image_frame_width"].int64_list.value[0]
+
+
+    keypoints = val.features.feature["train/landmarks"].float_list.value
 ```
